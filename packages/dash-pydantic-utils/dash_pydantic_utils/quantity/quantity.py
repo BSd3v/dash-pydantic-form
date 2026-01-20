@@ -220,6 +220,7 @@ class Quantity(BaseModel):
             "m^3": 1,
             "L": 0.001,
             "gal": 0.00378541,
+            "ft^3": 0.0283168,
         },
         # Speed
         ISUnits(m=1, s=-1): {
