@@ -20,7 +20,7 @@ from dash.dependencies import stringify_id
 from dash.development.base_component import Component
 from dash_iconify import DashIconify
 from dash_intersection_observer import DashIntersectionObserver
-from plotly.io.json import to_json_plotly
+from plotly.io.json import to_json_plotly, from_json_plotly
 from pydantic import BaseModel, Field, SerializeAsAny, field_validator
 from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
@@ -791,6 +791,8 @@ class ListField(BaseField):
         field: str,
         parent: str = "",
         field_info: FieldInfo,
+        template_only: bool = False,
+        first_item_template: bool = False,
     ) -> Component:
         """Create a form field of type checklist to interact with the model field."""
         type_ = Type.classify(field_info.annotation, field_info.discriminator)
@@ -828,29 +830,62 @@ class ListField(BaseField):
             fields_order=self.fields_order,
         )
 
-        template_item = self.make_template_item(item, parent, field)
+        if first_item_template:
+            # Create a template item to be used clientside when adding new items
+            template_content = self.render_type_item_mapper(self.render_type)(
+                item=item,
+                aio_id=aio_id,
+                form_id=form_id,
+                field=field,
+                parent=parent,
+                value=value[0],
+                fields_repr=self.fields_repr,
+                form_layout=self.form_layout,
+                items_deletable=True,
+                read_only=self.read_only,
+                input_kwargs=self.input_kwargs,
+                discriminator=discriminator,
+                form_cols=self.form_cols,
+                wrapper_class_name=wrapper_class_name,
+                wrapper_kwargs=self.wrapper_kwargs,
+                excluded_fields=self.excluded_fields,
+                fields_order=self.fields_order,
+                index=0,
+                opened=True
+            )
+            json_part = to_json_plotly(template_content)
 
-        # Create a template item to be used clientside when adding new items
-        template = self.render_type_item_mapper(self.render_type)(
-            item=template_item,
-            aio_id=aio_id,
-            form_id=form_id,
-            field=field,
-            parent=parent,
-            index="{{" + get_fullpath(parent, field).replace(":", "|") + "}}",
-            value="-",
-            opened=True,
-            fields_repr=self.fields_repr,
-            form_layout=self.form_layout,
-            # The template items (used when adding new ones) should always be deletable
-            items_deletable=True,
-            read_only=self.read_only,
-            input_kwargs=self.input_kwargs,
-            discriminator=discriminator,
-            form_cols=self.form_cols,
-            excluded_fields=self.excluded_fields,
-            fields_order=self.fields_order,
-        )
+            full_path = get_fullpath(parent, field).replace(":", "|")
+            json_part = json_part.replace(f'{full_path}:0', f'{full_path}:{"{{" + full_path + "}}"}')
+            template = from_json_plotly(json_part)
+
+        else:
+            template_item = self.make_template_item(item, parent, field)
+
+            # Create a template item to be used clientside when adding new items
+            template = self.render_type_item_mapper(self.render_type)(
+                item=template_item,
+                aio_id=aio_id,
+                form_id=form_id,
+                field=field,
+                parent=parent,
+                index="{{" + get_fullpath(parent, field).replace(":", "|") + "}}",
+                value="-",
+                opened=True,
+                fields_repr=self.fields_repr,
+                form_layout=self.form_layout,
+                # The template items (used when adding new ones) should always be deletable
+                items_deletable=True,
+                read_only=self.read_only,
+                input_kwargs=self.input_kwargs,
+                discriminator=discriminator,
+                form_cols=self.form_cols,
+                excluded_fields=self.excluded_fields,
+                fields_order=self.fields_order,
+            )
+
+        if template_only:
+            return to_json_plotly(template)
 
         title = self.get_title(field_info, field_name=field)
         description = self.get_description(field_info)
