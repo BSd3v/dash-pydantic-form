@@ -91,4 +91,5 @@ __all__ = [
     "BaseField",
     "VisibilityFilter",
     "fields",
+    "get_default_repr",
 ]
