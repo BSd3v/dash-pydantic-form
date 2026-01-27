@@ -2688,7 +2688,7 @@ packages:
   timestamp: 1766257087079
 - pypi: ./packages/dash-pydantic-form
   name: dash-pydantic-form
-  version: 0.16.0.post1.dev64+ge33822013.d20260121
+  version: 0.16.0.post1.dev64+ge33822013
   sha256: 286a2473fe9d7bd902b409520ab921a5141a6f33833c5d9cc8a9ce2dfa4bf648
   requires_dist:
   - dash-ag-grid>=31
