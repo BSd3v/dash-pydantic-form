@@ -74,3 +74,4 @@ dash = {extras = ["testing"], version = ">=2.16,<3"}
 lint = "pre-commit run --all-files"
 test = "pytest tests --headless"
 format = "pre-commit run --all-files --hook-stage manual"
+dist = "python -c \"import shutil; [shutil.rmtree(p, ignore_errors=True) for p in ['packages/dash-pydantic-utils/dist', 'packages/dash-pydantic-form/dist']]\" && python -m build packages/dash-pydantic-utils && python -m build packages/dash-pydantic-form"
