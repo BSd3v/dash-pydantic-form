@@ -173,13 +173,13 @@ dash_clientside.pydf = {
             let val = '';
             if (func_name && typeof pydf_usage[func_name] === 'function') {
                 try {
-                    val = pydf_usage[func_name](baseData) || 'item';
+                    val = pydf_usage[func_name](baseData) || dash_clientside.no_update;
                 } catch (e) {
                     console.error(`Error executing title function ${func_name}:`, e);
-                    val = 'item';
+                    val = dash_clientside.no_update;
                 }
             } else {
-                val = _.get(baseData, ['name']) || 'item';
+                val = _.get(baseData, ['name']) || dash_clientside.no_update;
             }
             if (_id.component === "_pydf-list-field-modal") {
                 dash_clientside.set_props(
