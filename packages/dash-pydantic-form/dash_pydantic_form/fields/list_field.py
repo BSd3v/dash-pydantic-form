@@ -115,6 +115,7 @@ class ListField(BaseField):
         edit = partial(common_ids.field_dependent_id, "_pydf-list-field-edit")
         edit_holder = partial(common_ids.field_dependent_id, "_pydf-list-field-edit-holder")
         modal = partial(common_ids.field_dependent_id, "_pydf-list-field-modal")
+        title_func = partial(common_ids.field_dependent_id, "_pydf-list-field-title-func")
         accordion_parent_text = partial(common_ids.field_dependent_id, "_pydf-list-field-accordion-text")
         modal_parent_text = partial(common_ids.field_dependent_id, "_pydf-list-field-modal-text")
         modal_save = partial(common_ids.field_dependent_id, "_pydf-list-field-modal-save")
@@ -179,6 +180,7 @@ class ListField(BaseField):
         )
 
         unmount = _kwargs.get("input_kwargs", {}).get("unmount", False)
+        title_func = _kwargs.get("input_kwargs", {}).get("title_func", None)
 
         return dmc.AccordionItem(
             # Give a random unique value to the item, prepended by uuid: so that the callback
@@ -188,7 +190,8 @@ class ListField(BaseField):
             className="pydf-model-list-accordion-item",
             children=[
                 dmc.AccordionControl(
-                    [dmc.Text(value_str, id=cls.ids.accordion_parent_text(aio_id, form_id, "", parent=new_parent))]
+                    [   dcc.Store(id=cls.ids.title_func(aio_id, form_id, "", parent=new_parent), data=title_func),
+                        dmc.Text(value_str, id=cls.ids.accordion_parent_text(aio_id, form_id, "", parent=new_parent))]
                     + items_deletable
                     * [
                         dmc.ActionIcon(
@@ -463,6 +466,7 @@ class ListField(BaseField):
         from dash_pydantic_form import ModelForm
 
         unmount = _kwargs.get("input_kwargs", {}).get("unmount", False)
+        title_func = _kwargs.get("input_kwargs", {}).get("title_func", None)
 
         new_parent = get_fullpath(parent, field, index)
         value_str = cls.get_value_str(value)
@@ -485,16 +489,20 @@ class ListField(BaseField):
             dmc.Group(
                 [
                     html.Div(
-                        dmc.Text(
-                            value_str,
-                            style={
-                                "flex": 1,
-                                "overflow": "hidden",
-                                "textOverflow": "ellipsis",
-                                "whiteSpace": "nowrap",
-                            },
-                            id=cls.ids.modal_parent_text(aio_id, form_id, "", parent=new_parent),
-                        ),
+                        [
+                            dcc.Store(id=cls.ids.title_func(aio_id, form_id, "", parent=new_parent),
+                                  data=title_func),
+                            dmc.Text(
+                                value_str,
+                                style={
+                                    "flex": 1,
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "whiteSpace": "nowrap",
+                                },
+                                id=cls.ids.modal_parent_text(aio_id, form_id, "", parent=new_parent),
+                            )
+                        ],
                         style={"cursor": "pointer", "flex": 1},
                         id=cls.ids.edit_holder(aio_id, form_id, "", parent=new_parent),
                         title="view" if read_only else "edit",
@@ -977,23 +985,6 @@ clientside_callback(
     ClientsideFunction(namespace="pydf", function_name="syncFalse"),
     Output(ListField.ids.modal(MATCH, MATCH, MATCH, MATCH, MATCH), "opened", allow_duplicate=True),
     Input(ListField.ids.modal_save(MATCH, MATCH, MATCH, MATCH, MATCH), "n_clicks"),
-    prevent_initial_call=True,
-)
-
-# Update the modal title and list item to match the name field of the item (if it exists)
-clientside_callback(
-    ClientsideFunction(namespace="pydf", function_name="updateModalTitle"),
-    Output(ListField.ids.modal(MATCH, MATCH, "", MATCH, MATCH), "title"),
-    Input(common_ids.value_field(MATCH, MATCH, "name", MATCH, MATCH), "value"),
-    State(ListField.ids.modal(MATCH, MATCH, "", MATCH, MATCH), "id"),
-    prevent_initial_call=True,
-)
-
-# Update the accordion title to match the name field of the item (if it exists)
-clientside_callback(
-    ClientsideFunction(namespace="pydf", function_name="updateAccordionTitle"),
-    Output(ListField.ids.accordion_parent_text(MATCH, MATCH, "", MATCH, MATCH), "children"),
-    Input(common_ids.value_field(MATCH, MATCH, "name", MATCH, MATCH), "value"),
     prevent_initial_call=True,
 )
 

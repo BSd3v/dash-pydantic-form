@@ -621,3 +621,16 @@ def recursive_load_fields_repr(fields_repr: dict):
         except KeyError:
             final[k] = v
     return final
+
+
+clientside_callback(
+    ClientsideFunction(namespace="pydf", function_name="updateListTitle"),
+Output(fields.List.ids.accordion_parent_text(MATCH, MATCH, "", ALL, ALL), "children"),
+    Input(ModelForm.ids.main(MATCH, MATCH), "data"),
+)
+
+clientside_callback(
+    ClientsideFunction(namespace="pydf", function_name="updateListTitle"),
+Output(fields.List.ids.modal(MATCH, MATCH, "", ALL, ALL), "title"),
+    Input(ModelForm.ids.main(MATCH, MATCH), "data"),
+)

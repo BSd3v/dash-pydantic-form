@@ -162,18 +162,34 @@ dash_clientside.pydf = {
     sync: (x) => x,
     syncTrue: (x) => !!x,
     syncFalse: (x) => !x,
-    updateModalTitle: (val, id) => {
-        const out = val != null ? String(val) : dash_clientside.no_update;
-        if (typeof out === "string") {
-            dash_clientside.set_props(
-                { ...id, component: "_pydf-list-field-modal-text" },
-                { children: out },
-            );
-        }
-        return out;
-    },
-    updateAccordionTitle: (val) => {
-        return val != null ? String(val) : dash_clientside.no_update;
+    updateListTitle: async (data) => {
+        const pydf_usage = _.get(dash_clientside, ['pydf_usage'], {});
+        var outputs = dash_clientside.callback_context.outputs_list.map((output) => {
+            const _id = output.id;
+            const func_component = dash_component_api.getLayout({..._id, component: "_pydf-list-field-title-func"})
+            const func_name = _.get(func_component, ['props', 'data'], null)
+            const path = getFullpath(_id.parent, _id.field).split(':').filter((p) => p !== PYDF_ROOTMODEL_ROOT)
+            const baseData = _.get(data, path)
+            let val = '';
+            if (func_name && typeof pydf_usage[func_name] === 'function') {
+                try {
+                    val = pydf_usage[func_name](baseData) || 'item';
+                } catch (e) {
+                    console.error(`Error executing title function ${func_name}:`, e);
+                    val = 'item';
+                }
+            } else {
+                val = _.get(baseData, ['name']) || 'item';
+            }
+            if (_id.component === "_pydf-list-field-modal") {
+                dash_clientside.set_props(
+                    { ..._id, component: "_pydf-list-field-modal-text" },
+                    { children: val },
+                );
+            }
+            return val;
+        })
+        return outputs;
     },
     syncTableJson: (rowData) => {
         return rowData.filter((row) =>
