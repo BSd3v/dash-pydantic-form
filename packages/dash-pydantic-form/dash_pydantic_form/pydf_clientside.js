@@ -173,7 +173,7 @@ dash_clientside.pydf = {
             let val = '';
             if (func_name && typeof pydf_usage[func_name] === 'function') {
                 try {
-                    val = pydf_usage[func_name](baseData) || dash_clientside.no_update;
+                    val = pydf_usage[func_name]({baseData, fullData: data}) || dash_clientside.no_update;
                 } catch (e) {
                     console.error(`Error executing title function ${func_name}:`, e);
                     val = dash_clientside.no_update;
@@ -181,7 +181,7 @@ dash_clientside.pydf = {
             } else {
                 val = _.get(baseData, ['name']) || dash_clientside.no_update;
             }
-            if (_id.component === "_pydf-list-field-modal") {
+            if (_id.component === "_pydf-list-field-modal" && val !== dash_clientside.no_update) {
                 dash_clientside.set_props(
                     { ..._id, component: "_pydf-list-field-modal-text" },
                     { children: val },
