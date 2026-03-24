@@ -548,7 +548,7 @@ class ListField(BaseField):
                                                 "",
                                                 id=cls.ids.children_holder(aio_id, form_id, "", parent=new_parent),
                                                 style={"minHeight": "200px"},
-                                                triggerOnce=False
+                                                triggerOnce=False,
                                             ),
                                         ],
                                         custom_spinner=dmc.Skeleton(h="100%", visible=True),
@@ -578,7 +578,7 @@ class ListField(BaseField):
                         style={"--modal-size": "min(calc(100vw - 4rem), 1150px)"},
                         styles={"content": {"containerType": "inline-size"}},
                         opened=opened,
-                        keepMounted=True
+                        keepMounted=True,
                     ),
                 ],
                 gap="sm",
