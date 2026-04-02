@@ -357,12 +357,13 @@ class TableField(BaseField):
                     style=grid_kwargs.pop("style", {}) | {"height": self.table_height},
                     dashGridOptions={
                         "singleClickEdit": True,
-                        "rowSelection": "multiple",
+                        "rowSelection": {"mode": "multiple"},
                         "stopEditingWhenCellsLoseFocus": True,
                         "context": {
                             "rowsEditable": self.rows_editable,
                             "autoAddRows": self.auto_add_rows,
                         },
+                        "theme": "legacy"
                     }
                     | grid_kwargs.pop("dashGridOptions", {})
                     | {
