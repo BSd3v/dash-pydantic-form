@@ -399,7 +399,7 @@ dagfuncs.PydfDateComparator = (filterDate, cellValue) => {
 };
 
 dagfuncs.tableKeyboardNavigation = (props) => {
-  const context = props.api?.getGridOptions('context')
+  const context = props.api?.getGridOption('context')
   if (!context.rowsEditable) return;
   if (
     props.column.userProvidedColDef?.cellRenderer === "PydfDeleteButton" &&
